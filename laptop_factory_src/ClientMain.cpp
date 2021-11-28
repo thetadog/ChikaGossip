@@ -5,7 +5,7 @@
 #include <vector> 
 
 #include "ClientSocket.h"
-#include "ClientThread.h"
+#include "ClientBody.h"
 #include "ClientTimer.h"
 
 int main(int argc, char *argv[]) {

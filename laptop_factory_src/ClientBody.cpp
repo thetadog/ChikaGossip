@@ -1,4 +1,4 @@
-#include "ClientThread.h"
+#include "ClientBody.h"
 #include "Messages.h"
 
 #include <iostream>

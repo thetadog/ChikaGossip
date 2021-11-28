@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 
-#include "ServerThread.h"
+#include "ServerBody.h"
 #include "ServerStub.h"
 
 LaptopInfo LaptopFactory::
@@ -87,6 +87,16 @@ void LaptopFactory::ExpertThread(int id) {
 		req->laptop.SetExpertId(id);
 		req->prom.set_value(req->laptop);	
 	}
+}
+
+void LaptopFactory::startActiveThread() {
+
+}
+
+[[noreturn]] void LaptopFactory::startPassiveThread() {
+    while (true) {
+
+    }
 }
 
 

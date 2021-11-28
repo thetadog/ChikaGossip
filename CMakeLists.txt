@@ -11,8 +11,8 @@ add_executable(client
         laptop_factory_src/ClientSocket.h
         laptop_factory_src/ClientStub.cpp
         laptop_factory_src/ClientStub.h
-        laptop_factory_src/ClientThread.cpp
-        laptop_factory_src/ClientThread.h
+        laptop_factory_src/ClientBody.cpp
+        laptop_factory_src/ClientBody.h
         laptop_factory_src/ClientTimer.cpp
         laptop_factory_src/ClientTimer.h
         laptop_factory_src/Messages.cpp

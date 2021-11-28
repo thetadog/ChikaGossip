@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "ServerSocket.h"
-#include "ServerThread.h"
+#include "ServerBody.h"
 
 int main(int argc, char *argv[]) {
 	int port;
@@ -15,6 +15,8 @@ int main(int argc, char *argv[]) {
 	LaptopFactory factory;
 	std::unique_ptr<ServerSocket> new_socket;
 	std::vector<std::thread> thread_vector;
+
+    int fan_out = 3;
 	
 	if (argc < 3) {
 		std::cout << "not enough arguments" << std::endl;
