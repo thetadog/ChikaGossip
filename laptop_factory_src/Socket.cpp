@@ -24,11 +24,11 @@ Socket::~Socket() {
 }
 
 
-int Socket::Send(char *buffer, int size, int flags) {
+int Socket::send(char *buffer, int size, int flags) {
 	int bytes_written = 0;
 	int offset = 0;
 	while (size > 0) {
-		bytes_written = send(fd_, buffer + offset, size, flags);
+		bytes_written = ::send(fd_, buffer + offset, size, flags);
 		if (bytes_written < 0) {
 			/*
 			if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -47,11 +47,11 @@ int Socket::Send(char *buffer, int size, int flags) {
 	return 1;
 }
 
-int Socket::Recv(char *buffer, int size, int flags) {
+int Socket::recv(char *buffer, int size, int flags) {
 	int bytes_read = 0;
 	int offset = 0;
 	while (size > 0) {
-		bytes_read = recv(fd_, buffer + offset, size, flags);
+		bytes_read = ::recv(fd_, buffer + offset, size, flags);
 		if (bytes_read <= 0) {
 			/*
 			if (errno == EAGAIN || errno == EWOULDBLOCK) {

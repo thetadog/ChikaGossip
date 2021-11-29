@@ -2,6 +2,31 @@
 #define __MESSAGES_H__
 
 #include <string>
+#include <utility>
+#define MAX_IP_SIZE 16
+
+class NodeConfig {
+private:
+    std::string ip;
+    int port = -1;
+public:
+    NodeConfig() = default;
+
+    NodeConfig(std::string ip, int port) {
+        this->ip = std::move(ip);
+        this->port = port;
+    }
+
+    int size();
+
+    void marshal(char *buffer);
+
+    void unmarshal(char *buffer);
+
+    bool isValid() const;
+
+    void print();
+};
 
 class PullRequest {
 private:

@@ -17,6 +17,10 @@ public:
     LaptopOrder ReceiveOrder();
 
     int SendLaptop(LaptopInfo info);
+
+    NodeConfig receiveNodeConfig();
+
+    int sendNodeConfig(NodeConfig nodeConfig);
 };
 
 #endif // end of #ifndef __SERVER_STUB_H__

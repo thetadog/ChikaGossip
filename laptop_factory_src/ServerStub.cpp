@@ -1,23 +1,24 @@
+#include <iostream>
 #include "ServerStub.h"
 
 ServerStub::ServerStub() {}
 
 void ServerStub::Init(std::unique_ptr<ServerSocket> socket) {
-	this->socket = std::move(socket);
+    this->socket = std::move(socket);
 }
 
-LaptopOrder ServerStub::ReceiveOrder() {
-	char buffer[32];
-	LaptopOrder order;
-	if (socket->Recv(buffer, order.Size(), 0)) {
-		order.Unmarshal(buffer);
-	}
-	return order;	
+NodeConfig ServerStub::receiveNodeConfig() {
+    char buffer[32];
+    NodeConfig node;
+    if (socket->recv(buffer, node.size(), 0)) {
+        node.unmarshal(buffer);
+    }
+    return node;
 }
 
-int ServerStub::SendLaptop(LaptopInfo info) {
-	char buffer[32];
-	info.Marshal(buffer);
-	return socket->Send(buffer, info.Size(), 0);
+int ServerStub::sendNodeConfig(NodeConfig nodeConfig) {
+    char buffer[32];
+    nodeConfig.marshal(buffer);
+    return socket->send(buffer, nodeConfig.size(), 0);
 }
 

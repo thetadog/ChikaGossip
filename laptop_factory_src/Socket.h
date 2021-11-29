@@ -21,8 +21,8 @@ public:
 	Socket();
 	virtual ~Socket();
 
-	int Send(char *buffer, int size, int flags = 0);
-	int Recv(char *buffer, int size, int flags = 0);
+	int send(char *buffer, int size, int flags = 0);
+	int recv(char *buffer, int size, int flags = 0);
 
 	int NagleOn(bool on_off);
 	bool IsNagleOn();

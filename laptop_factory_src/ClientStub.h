@@ -8,11 +8,13 @@
 
 class ClientStub {
 private:
-	ClientSocket socket;
+    ClientSocket socket;
 public:
-	ClientStub();
-	int Init(std::string ip, int port);
-	LaptopInfo OrderLaptop(LaptopOrder order);
+    ClientStub();
+
+    int Init(std::string ip, int port);
+
+    int sendNodeConfig(NodeConfig nodeConfig);
 };
 
 

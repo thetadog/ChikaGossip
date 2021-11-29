@@ -16,10 +16,6 @@ struct ExpertRequest {
     std::promise<LaptopInfo> prom;
 };
 
-struct NodeConfig {
-    std::string ip;
-    std::port port;
-};
 
 class LaptopFactory {
 private:
@@ -30,17 +26,10 @@ private:
     std::queue<std::unique_ptr<ExpertRequest>> erq;
     std::mutex erq_lock;
     std::condition_variable erq_cv;
-
-    LaptopInfo CreateRegularLaptop(LaptopOrder order, int engineer_id);
-
-    LaptopInfo CreateCustomLaptop(LaptopOrder order, int engineer_id);
-
 public:
     void init();
 
     void EngineerThread(std::unique_ptr<ServerSocket> socket, int id);
-
-    void ExpertThread(int id);
 
     void startActiveThread();
 
