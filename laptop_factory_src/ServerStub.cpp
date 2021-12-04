@@ -11,7 +11,7 @@ NodeConfig ServerStub::receiveNodeConfig() {
     char buffer[32];
     NodeConfig node;
     if (socket->recv(buffer, node.size(), 0)) {
-        node.unmarshal(buffer);
+        node.unmarshal(buffer, 0);
     }
     return node;
 }

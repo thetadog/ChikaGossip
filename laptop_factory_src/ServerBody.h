@@ -6,6 +6,7 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <map>
 
 #include "Messages.h"
 #include "ServerStub.h"
@@ -16,12 +17,15 @@ struct ExpertRequest {
     std::promise<LaptopInfo> prom;
 };
 
-
 class LaptopFactory {
 private:
     // two vectors should have the same index
     std::vector<ServerStub> stubs;
     std::vector<NodeConfig> configs;
+
+    // local storage
+    NodeConfig self; // this is needed to send to other nodes
+    Membership local_membership;
 
     std::queue<std::unique_ptr<ExpertRequest>> erq;
     std::mutex erq_lock;

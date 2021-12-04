@@ -3,6 +3,8 @@
 
 #include <string>
 #include <utility>
+#include <vector>
+
 #define MAX_IP_SIZE 16
 
 class NodeConfig {
@@ -17,7 +19,51 @@ public:
         this->port = port;
     }
 
+    bool operator==(const NodeConfig &node) {
+        return (this->port == node.port) && (this->ip.compare(node.ip));
+    }
+
+    bool operator<(const NodeConfig &node) {
+        if (this->ip.compare(node.ip) < 0) {
+            return true;
+        }
+        if (this->port < node.port) {
+            return true;
+        }
+        return false;
+    }
+
+    bool operator>(const NodeConfig &node) {
+        if (this->ip.compare(node.ip) > 0) {
+            return true;
+        }
+        if (this->port > node.port) {
+            return true;
+        }
+        return false;
+    }
+
     int size();
+
+    void marshal(char *buffer, unsigned int offset);
+
+    void unmarshal(char *buffer, unsigned int offset);
+
+    bool isValid() const;
+
+    void print();
+};
+
+class Membership {
+private:
+    int num_nodes = 0;
+    std::vector<std::unique_ptr<NodeConfig>> members;
+public:
+    Membership() = default;
+
+    void addMember(std::unique_ptr<NodeConfig> newNode);
+
+    int size() const;
 
     void marshal(char *buffer);
 

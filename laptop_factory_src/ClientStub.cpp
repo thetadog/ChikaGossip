@@ -9,7 +9,7 @@ int ClientStub::Init(std::string ip, int port) {
 
 int ClientStub::sendNodeConfig(NodeConfig nodeConfig) {
     char buffer[32];
-    nodeConfig.marshal(buffer);
+    nodeConfig.marshal(buffer, 0);
     return socket.send(buffer, nodeConfig.size(), 0);
 }
 

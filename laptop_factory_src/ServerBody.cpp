@@ -29,6 +29,8 @@ void LaptopFactory::startActiveThread() {
 }
 
 [[noreturn]] void LaptopFactory::startPassiveThread() {
+    ServerStub stub;
+
     while (true) {
 
     }
