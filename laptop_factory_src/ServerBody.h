@@ -17,7 +17,7 @@ struct ExpertRequest {
     std::promise<LaptopInfo> prom;
 };
 
-class LaptopFactory {
+class ServerNode {
 private:
     // two vectors should have the same index
     std::vector<ServerStub> stubs;
@@ -33,9 +33,7 @@ private:
 public:
     void init();
 
-    void EngineerThread(std::unique_ptr<ServerSocket> socket, int id);
-
-    void startActiveThread();
+    void startActiveThread(std::unique_ptr<ServerSocket> socket);
 
     [[noreturn]] void startPassiveThread();
 };

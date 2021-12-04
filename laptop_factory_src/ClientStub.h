@@ -14,7 +14,7 @@ public:
 
     int Init(std::string ip, int port);
 
-    int sendNodeConfig(NodeConfig nodeConfig);
+    int sendMembership(Membership membership);
 };
 
 

@@ -43,7 +43,7 @@ public:
         return false;
     }
 
-    int size();
+    int byteSize();
 
     void marshal(char *buffer, unsigned int offset);
 
@@ -56,18 +56,28 @@ public:
 
 class Membership {
 private:
+    // todo: num_nodes affect the size of marshal/unmarshal
+    //  therefore this only should be changed by addMember and no deletion is allowed
     int num_nodes = 0;
-    std::vector<std::unique_ptr<NodeConfig>> members;
+    std::vector<NodeConfig> members;
 public:
     Membership() = default;
 
-    void addMember(std::unique_ptr<NodeConfig> newNode);
+    void addMember(const NodeConfig &newNode);
 
-    int size() const;
+    int getMemberSize() const;
+
+    int getNumNodes() const;
+
+    int expectedNodeByteSize() const;
+
+    int byteSize() const;
 
     void marshal(char *buffer);
 
-    void unmarshal(char *buffer);
+    void unmarshalNumNodes(char *buffer);
+
+    void unmarshalMembers(char *buffer);
 
     bool isValid() const;
 

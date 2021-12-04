@@ -1,6 +1,8 @@
 # ChikaGossip
 Gossip protocol implementation in C++
 
+## Assumption
+- When a new node joins an existing network, it will be given a pair of [ip, port] of existing node of the network. This existing node is always assumed to be functioning and no failure or de-sync could happen to it throughout the whole creation procedural with the new node.
 ## Design
 - 2 Threads
   - Membership Thread (Active)
@@ -17,5 +19,15 @@ Gossip protocol implementation in C++
 Node stores its config and membership locally.
 at startup, new node sends its config to existing node, existing node sends back entire membership.
 
+#### Node
+- ServerNode.class - `self`
+  - This is the main body of the server, it spawns threads and handle all things except argument parsing and incoming sockets receiving, which is handled by main.
+- NodeConfig.class - `selfConfig`
+  - This is given as args at the time of startup. It stores the NodeConfig of this node.
+- Membership.class - `members`
+  - `members` stores all the NodeConfigs, represented by Membership class, of all nodes in its network.
+  - Membership information is exchangeable between nodes and should be pass to a new node during creation, if current node is pointed as the existing node.
+
 ## CMD
-./Server ip port [existing_ip existing port]
+If a server is not given an existing ip and port, it will assume it's the first node in the network and create a separate graph.
+./server ip port [existing_ip existing port]

@@ -7,18 +7,25 @@ void ServerStub::Init(std::unique_ptr<ServerSocket> socket) {
     this->socket = std::move(socket);
 }
 
-NodeConfig ServerStub::receiveNodeConfig() {
-    char buffer[32];
-    NodeConfig node;
-    if (socket->recv(buffer, node.size(), 0)) {
-        node.unmarshal(buffer, 0);
+Membership ServerStub::receiveMembership() {
+    char size_buffer[sizeof(int)];
+    Membership members;
+    if (socket->recv(size_buffer, sizeof(int), 0)) {
+        members.unmarshalNumNodes(size_buffer);
     }
-    return node;
+    // if check to skip 0
+    if (members.getNumNodes() <= 0) {
+        return members;
+    }
+    char node_buffer[members.expectedNodeByteSize()];
+    if (socket->recv(node_buffer, members.expectedNodeByteSize(), 0)) {
+        members.unmarshalMembers(node_buffer);
+    }
+    return members;
 }
 
-int ServerStub::sendNodeConfig(NodeConfig nodeConfig) {
-    char buffer[32];
-    nodeConfig.marshal(buffer);
-    return socket->send(buffer, nodeConfig.size(), 0);
+int ServerStub::sendMembership(Membership members) {
+    char buffer[members.byteSize()];
+    members.marshal(buffer);
+    return socket->send(buffer, members.byteSize(), 0);
 }
-

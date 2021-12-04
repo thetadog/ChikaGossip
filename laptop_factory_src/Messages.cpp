@@ -4,6 +4,9 @@
 #include <arpa/inet.h>
 #include "Messages.h"
 
+/**
+ * NodeConfig Section
+ */
 bool NodeConfig::isValid() const {
     return port != -1;
 }
@@ -33,54 +36,68 @@ void NodeConfig::print() {
     std::cout << "port " << port << std::endl;
 }
 
-int NodeConfig::size() {
+// this should always be a constant
+int NodeConfig::byteSize() {
     return MAX_IP_SIZE + sizeof(port);
 }
 
-void Membership::addMember(std::unique_ptr<NodeConfig> newNode) {
-    members.push_back(std::move(newNode));
+/**
+ * Membership Section
+ */
+void Membership::addMember(const NodeConfig &newNode) {
+    members.push_back(newNode);
     num_nodes++;
 }
 
-int Membership::size() const {
+int Membership::getMemberSize() const {
+    return this->members.size();
+}
+
+int Membership::getNumNodes() const {
     return this->num_nodes;
+}
+
+int Membership::expectedNodeByteSize() const {
+    return (this->num_nodes * (new NodeConfig)->byteSize());
+}
+
+int Membership::byteSize() const {
+    return (this->num_nodes * (new NodeConfig)->byteSize()) + sizeof(this->num_nodes);
 }
 
 void Membership::marshal(char *buffer) {
     int net_num_nodes = htonl(num_nodes);
     unsigned int offset = 0;
-
     memcpy(buffer + offset, &net_num_nodes, sizeof(net_num_nodes));
     offset += sizeof(net_num_nodes);
-
     for (auto &&node: members) {
-        node->marshal(buffer, offset);
-        offset += node->size();
+        node.marshal(buffer, offset);
+        offset += node.byteSize();
     }
 }
 
-void Membership::unmarshal(char *buffer) {
+void Membership::unmarshalNumNodes(char *buffer) {
     int net_num_nodes;
-    unsigned int offset = 0;
-
-    memcpy(&net_num_nodes, buffer + offset, sizeof(net_num_nodes));
-    offset += sizeof(net_num_nodes);
-
+    memcpy(&net_num_nodes, buffer, sizeof(net_num_nodes));
     num_nodes = ntohl(net_num_nodes);
+}
 
+void Membership::unmarshalMembers(char *buffer) {
+    unsigned int offset = 0;
     for (int i = 0; i < num_nodes; i++) {
-        std::unique_ptr<NodeConfig> newNode = std::unique_ptr<NodeConfig>(new NodeConfig);
-        newNode->unmarshal(buffer, offset);
+        NodeConfig newNode;
+        newNode.unmarshal(buffer, offset);
+        offset += newNode.byteSize();
         members.push_back(newNode);
     }
 }
 
 bool Membership::isValid() const {
-    return num_nodes != 0;
+    return num_nodes > 0 && num_nodes == members.size();
 }
 
 void Membership::print() {
     for (auto &&node: members) {
-        node->print();
+        node.print();
     }
 }
