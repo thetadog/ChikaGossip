@@ -5,15 +5,21 @@
 
 #include "Socket.h"
 
-class ServerSocket: public Socket {
+class ServerSocket : public Socket {
 public:
-	ServerSocket() {}
-	~ServerSocket() {}
+    ServerSocket() {}
 
-	ServerSocket(int fd, bool nagle_on = NAGLE_ON);
+    ~ServerSocket() {}
 
-	bool Init(int port);
-	std::unique_ptr<ServerSocket> Accept();
+    ServerSocket(int fd, bool nagle_on = NAGLE_ON);
+
+    bool Init(int port);
+
+    int Init(std::string ip, int port);
+
+    bool IsInitialized();
+
+    std::unique_ptr<ServerSocket> Accept();
 };
 
 

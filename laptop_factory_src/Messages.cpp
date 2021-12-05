@@ -45,12 +45,22 @@ int NodeConfig::byteSize() const {
 /**
  * Membership Section
  */
-void Membership::addMember(const NodeConfig &newNode) {
+int Membership::addMember(const NodeConfig &newNode) {
     auto res = members.insert(newNode);
     if (res.second) {
         // only increment when successfully inserted
         num_node++;
+        return 1;
     }
+    return 0;
+}
+
+int Membership::merge(const Membership& another) {
+    int c = 0;
+    for (const NodeConfig &n: another.members) {
+        c += this->addMember(n);
+    }
+    return c;
 }
 
 int Membership::getMemberSize() const {
@@ -116,11 +126,15 @@ void Message::setType(int type) {
     message_type = type;
 }
 
-void Message::setSelf(std::string ip, int port) {
+void Message::setPull(std::string ip, int port) {
     membership.addMember(NodeConfig(std::move(ip), port));
 }
 
-void Message::setGossip(Membership hot_rumor) {
+void Message::setPull(const NodeConfig &self) {
+    membership.addMember(self);
+}
+
+void Message::setPush(Membership hot_rumor) {
     membership = std::move(hot_rumor);
 }
 

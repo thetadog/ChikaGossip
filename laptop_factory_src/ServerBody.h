@@ -18,6 +18,7 @@ private:
     Membership local_membership;
     // use vector so we can delete with ease
     std::vector<NodeConfig> hot_rumor;
+    std::mutex hot_lock;
 public:
     void init(std::string ip, int port);
 
@@ -25,7 +26,7 @@ public:
     void startPassiveThread(std::unique_ptr<ServerSocket> socket);
 
     // todo: this thread should only be started once
-    [[noreturn]] void startActiveThread();
+    [[noreturn]] void startActiveThread(const std::string& e_ip, int e_port);
 };
 
 #endif // end of #ifndef __SERVERTHREAD_H__

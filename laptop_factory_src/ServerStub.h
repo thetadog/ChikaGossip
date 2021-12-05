@@ -8,20 +8,25 @@
 
 class ServerStub {
 private:
-//    std::unique_ptr<ServerSocket> socket = std::unique_ptr<ServerSocket>(new ServerSocket);
-    std::unique_ptr<ServerSocket> socket;
+    std::unique_ptr<ServerSocket> socket = std::unique_ptr<ServerSocket>(new ServerSocket);
 public:
     ServerStub();
 
-    void Init(std::unique_ptr<ServerSocket> socket);
+    void init(std::unique_ptr<ServerSocket> socket);
 
-    Membership receiveMembership();
+    int init(NodeConfig config);
 
-    int sendMembership(Membership membership);
+    bool isInitialized();
+
+    void close();
 
     Message receiveMessage();
 
-    int sendMessage(Message message);
+    Membership pull(Message message);
+
+    int replyPull(Membership membership);
+
+    int push(Message message);
 };
 
 #endif // end of #ifndef __SERVER_STUB_H__

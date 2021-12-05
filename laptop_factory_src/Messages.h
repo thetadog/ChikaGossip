@@ -24,6 +24,14 @@ public:
         this->port = port;
     }
 
+    std::string getIp() {
+        return ip;
+    }
+
+    int getPort() const {
+        return port;
+    }
+
     bool operator==(const NodeConfig &node) const {
         return (this->port == node.port) && (this->ip.compare(node.ip));
     }
@@ -69,7 +77,9 @@ public:
 
     Membership() = default;
 
-    void addMember(const NodeConfig &newNode);
+    int addMember(const NodeConfig &newNode);
+
+    int merge(const Membership& another);
 
     int getMemberSize() const;
 
@@ -102,9 +112,11 @@ public:
 
     void setType(int type);
 
-    void setSelf(std::string ip, int port);
+    void setPull(std::string ip, int port);
 
-    void setGossip(Membership hot_rumor);
+    void setPull(const NodeConfig &self);
+
+    void setPush(Membership hot_rumor);
 
     int byteSize() const;
 

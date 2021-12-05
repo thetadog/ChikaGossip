@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     int port;
 
     std::string e_ip;
-    int e_port;
+    int e_port = -1;
 
     ServerNode server;
     NodeConfig selfConfig;
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     server.init(ip, port);
 
-    std::thread active_thread(&ServerNode::startActiveThread, &server);
+    std::thread active_thread(&ServerNode::startActiveThread, &server, std::move(e_ip), e_port);
     thread_vector.push_back(std::move(active_thread));
 
     while ((new_socket = socket.Accept())) {

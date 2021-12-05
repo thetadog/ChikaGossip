@@ -16,7 +16,7 @@ ThreadBody(std::string ip, int port, int id, int orders, int type) {
 
     Message pullMessage;
     pullMessage.setType(PULL_MESSAGE);
-    pullMessage.setSelf(ip, 5);
+    pullMessage.setPull(ip, 5);
     pullMessage.print();
     std::cout << "sending message..." << std::endl;
 
@@ -33,7 +33,7 @@ ThreadBody(std::string ip, int port, int id, int orders, int type) {
 //
 //    Message pushMessage;
 //    pushMessage.setType(PUSH_MESSAGE);
-//    pushMessage.setGossip(membership);
+//    pushMessage.setPush(membership);
 //    pushMessage.print();
 //    std::cout << "sending message..." << std::endl;
 //    stub.push(pushMessage);
