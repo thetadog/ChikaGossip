@@ -45,8 +45,8 @@ int NodeConfig::byteSize() {
  * Membership Section
  */
 void Membership::addMember(const NodeConfig &newNode) {
-    members.push_back(newNode);
-    num_nodes++;
+    members.insert(newNode);
+    num_node++;
 }
 
 int Membership::getMemberSize() const {
@@ -54,23 +54,23 @@ int Membership::getMemberSize() const {
 }
 
 int Membership::getNumNodes() const {
-    return this->num_nodes;
+    return this->num_node;
 }
 
 int Membership::expectedNodeByteSize() const {
-    return (this->num_nodes * (new NodeConfig)->byteSize());
+    return (this->num_node * (new NodeConfig)->byteSize());
 }
 
 int Membership::byteSize() const {
-    return (this->num_nodes * (new NodeConfig)->byteSize()) + sizeof(this->num_nodes);
+    return (this->num_node * (new NodeConfig)->byteSize()) + sizeof(this->num_node);
 }
 
 void Membership::marshal(char *buffer) {
-    int net_num_nodes = htonl(num_nodes);
+    int net_num_nodes = htonl(num_node);
     unsigned int offset = 0;
     memcpy(buffer + offset, &net_num_nodes, sizeof(net_num_nodes));
     offset += sizeof(net_num_nodes);
-    for (auto &&node: members) {
+    for (NodeConfig node: members) {
         node.marshal(buffer, offset);
         offset += node.byteSize();
     }
@@ -79,25 +79,25 @@ void Membership::marshal(char *buffer) {
 void Membership::unmarshalNumNodes(char *buffer) {
     int net_num_nodes;
     memcpy(&net_num_nodes, buffer, sizeof(net_num_nodes));
-    num_nodes = ntohl(net_num_nodes);
+    num_node = ntohl(net_num_nodes);
 }
 
 void Membership::unmarshalMembers(char *buffer) {
     unsigned int offset = 0;
-    for (int i = 0; i < num_nodes; i++) {
+    for (int i = 0; i < num_node; i++) {
         NodeConfig newNode;
         newNode.unmarshal(buffer, offset);
         offset += newNode.byteSize();
-        members.push_back(newNode);
+        members.insert(newNode);
     }
 }
 
 bool Membership::isValid() const {
-    return num_nodes > 0 && num_nodes == members.size();
+    return num_node > 0 && num_node == members.size();
 }
 
 void Membership::print() {
-    for (auto &&node: members) {
+    for (NodeConfig node: members) {
         node.print();
     }
 }

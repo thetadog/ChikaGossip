@@ -31,3 +31,23 @@ at startup, new node sends its config to existing node, existing node sends back
 ## CMD
 If a server is not given an existing ip and port, it will assume it's the first node in the network and create a separate graph.
 ./server ip port [existing_ip existing port]
+
+### Passive/Listening Thread
+- Receive `Pull Message`, it's new node:
+  - add new node `config` to `hot rumor`
+  - send entire `membership` back to new node
+- Receive `Push Message`, it's existing node:
+  - add `hot config` from `Pull Message` to `hot rumor`
+  - no reply is needed
+### Active Thread
+#### new node startup
+- Send `Pull Message` to given existing node
+  - `Pull Message` should include its own `config`
+  - wait for `membership` from existing node, copy from it
+  - add its own `config` to its `hot rumor`
+#### after startup
+- For every x seconds:
+  - Coin toss for `hot rumor`:
+    - roll dice on 1/k for each `NodeConfig` in `hot rumor`
+    - if 1/k, remove `NodeConfig` from `hot rumor`
+  - send `Push Message` with current `hot rumor` to n random nodes from its `membership`

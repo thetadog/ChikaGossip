@@ -4,8 +4,7 @@
 #include "ServerBody.h"
 #include "ServerStub.h"
 
-void ServerNode::
-startActiveThread(std::unique_ptr<ServerSocket> socket) {
+void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
     std::cout << "new thread starts" << std::endl;
     NodeConfig nodeConfig;
     Membership m;
@@ -32,14 +31,3 @@ startActiveThread(std::unique_ptr<ServerSocket> socket) {
         m.print();
     }
 }
-
-[[noreturn]] void ServerNode::startPassiveThread() {
-    ServerStub stub;
-
-    while (true) {
-
-    }
-}
-
-
-

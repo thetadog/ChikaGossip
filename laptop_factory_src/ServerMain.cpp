@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
     }
 
     while ((new_socket = socket.Accept())) {
-        std::thread active_thread(&ServerNode::startActiveThread, &self, std::move(new_socket));
+        std::thread active_thread(&ServerNode::startPassiveThread, &self, std::move(new_socket));
         thread_vector.push_back(std::move(active_thread));
     }
     return 0;
