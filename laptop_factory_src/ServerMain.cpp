@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     std::string e_ip;
     int e_port;
 
-    ServerNode self;
+    ServerNode server;
     NodeConfig selfConfig;
 
     ServerSocket socket;
@@ -39,9 +39,15 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    server.init(ip, port);
+
+    std::thread active_thread(&ServerNode::startActiveThread, &server);
+    thread_vector.push_back(std::move(active_thread));
+
     while ((new_socket = socket.Accept())) {
-        std::thread active_thread(&ServerNode::startPassiveThread, &self, std::move(new_socket));
-        thread_vector.push_back(std::move(active_thread));
+        std::thread passive_thread(&ServerNode::startPassiveThread, &server, std::move(new_socket));
+        thread_vector.push_back(std::move(passive_thread));
     }
+
     return 0;
 }

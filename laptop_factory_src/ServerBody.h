@@ -14,18 +14,18 @@
 
 class ServerNode {
 private:
-    // two vectors should have the same index
-    std::vector<ServerStub> stubs;
-    std::vector<NodeConfig> configs;
-
-    // local storage
-    NodeConfig self; // this is needed to send to other nodes
+    NodeConfig self;
     Membership local_membership;
-
+    // use vector so we can delete with ease
+    std::vector<NodeConfig> hot_rumor;
 public:
-    void init();
+    void init(std::string ip, int port);
 
+    // todo: this thread can be started multiple time (i.e. on receive of new socket)
     void startPassiveThread(std::unique_ptr<ServerSocket> socket);
+
+    // todo: this thread should only be started once
+    [[noreturn]] void startActiveThread();
 };
 
 #endif // end of #ifndef __SERVERTHREAD_H__

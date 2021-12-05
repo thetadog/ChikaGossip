@@ -9,17 +9,18 @@
 #include "ClientTimer.h"
 
 class ClientThreadClass {
-	int customer_id;
-	int num_orders;
-	int laptop_type;
-	ClientStub stub;
+    int customer_id;
+    int num_orders;
+    int laptop_type;
+    ClientStub stub;
 
-	ClientTimer timer;
+    ClientTimer timer;
 public:
-	ClientThreadClass();
-	void ThreadBody(std::string ip, int port, int id, int orders, int type);
+    ClientThreadClass();
 
-	ClientTimer GetTimer();
+    void ThreadBody(std::string ip, int port, int id, int orders, int type);
+
+    ClientTimer GetTimer();
 };
 
 

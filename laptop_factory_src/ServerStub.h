@@ -17,7 +17,11 @@ public:
 
     Membership receiveMembership();
 
-    int sendMembership(Membership members);
+    int sendMembership(Membership membership);
+
+    Message receiveMessage();
+
+    int sendMessage(Message message);
 };
 
 #endif // end of #ifndef __SERVER_STUB_H__

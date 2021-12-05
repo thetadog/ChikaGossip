@@ -16,11 +16,11 @@ Gossip protocol implementation in C++
 - Timeout
 
 ### Node Local Structure
-Node stores its config and membership locally.
-at startup, new node sends its config to existing node, existing node sends back entire membership.
+Node stores its nodeConfig and membership locally.
+at startup, new node sends its nodeConfig to existing node, existing node sends back entire membership.
 
 #### Node
-- ServerNode.class - `self`
+- ServerNode.class - `nodeConfig`
   - This is the main body of the server, it spawns threads and handle all things except argument parsing and incoming sockets receiving, which is handled by main.
 - NodeConfig.class - `selfConfig`
   - This is given as args at the time of startup. It stores the NodeConfig of this node.
@@ -34,20 +34,21 @@ If a server is not given an existing ip and port, it will assume it's the first 
 
 ### Passive/Listening Thread
 - Receive `Pull Message`, it's new node:
-  - add new node `config` to `hot rumor`
+  - add new node `nodeConfig` to `hot rumor`
   - send entire `membership` back to new node
 - Receive `Push Message`, it's existing node:
-  - add `hot config` from `Pull Message` to `hot rumor`
+  - add `hot nodeConfig` from `Pull Message` to `hot rumor`
   - no reply is needed
 ### Active Thread
 #### new node startup
-- Send `Pull Message` to given existing node
-  - `Pull Message` should include its own `config`
+- Send `Pull Message` to the given existing node
+  - `Pull Message` should include its own `nodeConfig`
   - wait for `membership` from existing node, copy from it
-  - add its own `config` to its `hot rumor`
+  - add its own `nodeConfig` to its `hot rumor`
 #### after startup
 - For every x seconds:
   - Coin toss for `hot rumor`:
     - roll dice on 1/k for each `NodeConfig` in `hot rumor`
     - if 1/k, remove `NodeConfig` from `hot rumor`
   - send `Push Message` with current `hot rumor` to n random nodes from its `membership`
+    - node should never send a message to itself

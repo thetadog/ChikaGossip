@@ -1,5 +1,6 @@
 #include <cstring>
 #include <iostream>
+#include <utility>
 
 #include <arpa/inet.h>
 #include "Messages.h"
@@ -37,7 +38,7 @@ void NodeConfig::print() {
 }
 
 // this should always be a constant
-int NodeConfig::byteSize() {
+int NodeConfig::byteSize() const {
     return MAX_IP_SIZE + sizeof(port);
 }
 
@@ -45,8 +46,11 @@ int NodeConfig::byteSize() {
  * Membership Section
  */
 void Membership::addMember(const NodeConfig &newNode) {
-    members.insert(newNode);
-    num_node++;
+    auto res = members.insert(newNode);
+    if (res.second) {
+        // only increment when successfully inserted
+        num_node++;
+    }
 }
 
 int Membership::getMemberSize() const {
@@ -57,7 +61,7 @@ int Membership::getNumNodes() const {
     return this->num_node;
 }
 
-int Membership::expectedNodeByteSize() const {
+int Membership::membersByteSize() const {
     return (this->num_node * (new NodeConfig)->byteSize());
 }
 
@@ -65,9 +69,8 @@ int Membership::byteSize() const {
     return (this->num_node * (new NodeConfig)->byteSize()) + sizeof(this->num_node);
 }
 
-void Membership::marshal(char *buffer) {
+void Membership::marshal(char *buffer, int offset) {
     int net_num_nodes = htonl(num_node);
-    unsigned int offset = 0;
     memcpy(buffer + offset, &net_num_nodes, sizeof(net_num_nodes));
     offset += sizeof(net_num_nodes);
     for (NodeConfig node: members) {
@@ -101,3 +104,57 @@ void Membership::print() {
         node.print();
     }
 }
+
+/**
+* Message Section
+*/
+int Message::getType() const {
+    return message_type;
+}
+
+void Message::setType(int type) {
+    message_type = type;
+}
+
+void Message::setSelf(std::string ip, int port) {
+    membership.addMember(NodeConfig(std::move(ip), port));
+}
+
+void Message::setGossip(Membership hot_rumor) {
+    membership = std::move(hot_rumor);
+}
+
+int Message::byteSize() const {
+    return sizeof(message_type) + membership.byteSize();
+}
+
+int Message::contentByteSize() const {
+    return membership.byteSize();
+}
+
+void Message::marshal(char *buffer) {
+    int net_type = htonl(message_type);
+    int offset = 0;
+    memcpy(buffer + offset, &net_type, sizeof(net_type));
+    offset += sizeof(net_type);
+    membership.marshal(buffer, offset);
+}
+
+void Message::unmarshalMessageType(char *buffer) {
+    int net_type;
+    memcpy(&net_type, buffer, sizeof(net_type));
+    message_type = ntohl(net_type);
+}
+
+bool Message::isValid() const {
+    return message_type > 0;
+}
+
+void Message::print() {
+    std::cout << "Message: Type " << message_type << std::endl;
+    membership.print();
+}
+
+/**
+* PushMessage Section
+*/

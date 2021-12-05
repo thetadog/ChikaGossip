@@ -14,7 +14,9 @@ public:
 
     int Init(std::string ip, int port);
 
-    int sendMembership(Membership membership);
+    Membership pull(Message message);
+
+    int push(Message message);
 };
 
 

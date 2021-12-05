@@ -7,6 +7,10 @@
 #include <set>
 
 #define MAX_IP_SIZE 16
+#define PULL_MESSAGE 1
+#define PUSH_MESSAGE 2
+#define FAN_OUT 2
+#define DICE 5
 
 class NodeConfig {
 private:
@@ -44,8 +48,7 @@ public:
         return false;
     }
 
-
-    int byteSize();
+    int byteSize() const;
 
     void marshal(char *buffer, unsigned int offset);
 
@@ -58,11 +61,12 @@ public:
 
 class Membership {
 private:
-    // todo: num_nodes affect the size of marshal/unmarshal
+    // todo: num_nodes affect the size of marshalPullMessage/unmarshalPullMessage
     //  therefore this only should be changed by addMember() and no deletion is allowed
     int num_node = 0;
-    std::set<NodeConfig> members;
 public:
+    std::set<NodeConfig> members;
+
     Membership() = default;
 
     void addMember(const NodeConfig &newNode);
@@ -71,15 +75,56 @@ public:
 
     int getNumNodes() const;
 
-    int expectedNodeByteSize() const;
+    int membersByteSize() const;
 
     int byteSize() const;
 
-    void marshal(char *buffer);
+    void marshal(char *buffer, int offset);
 
     void unmarshalNumNodes(char *buffer);
 
     void unmarshalMembers(char *buffer);
+
+    bool isValid() const;
+
+    void print();
+};
+
+class Message {
+private:
+    int message_type = 0;
+public:
+    Membership membership;
+
+    Message() = default;
+
+    int getType() const;
+
+    void setType(int type);
+
+    void setSelf(std::string ip, int port);
+
+    void setGossip(Membership hot_rumor);
+
+    int byteSize() const;
+
+    int contentByteSize() const;
+
+    void marshal(char *buffer);
+
+    void unmarshalMessageType(char *buffer);
+
+    bool isValid() const;
+
+    void print();
+};
+
+class PushMessage {
+private:
+    int TYPE = PUSH_MESSAGE;
+    Membership hot_rumors;
+public:
+    PushMessage() = default;
 
     bool isValid() const;
 
