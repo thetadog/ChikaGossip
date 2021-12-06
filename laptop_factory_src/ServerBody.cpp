@@ -35,8 +35,6 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
             break;
         }
 
-        message.print();
-
         // todo: this step can be optimized with merge
         switch (message.getType()) {
             case PULL_MESSAGE:
