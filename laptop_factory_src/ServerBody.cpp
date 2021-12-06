@@ -39,13 +39,14 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
         switch (message.getType()) {
             case PULL_MESSAGE:
                 // todo: add msg.membership to hot and local
+                hot_lock.lock();
                 for (const NodeConfig &node: message.membership.members) {
                     // todo: multi pull from the same node will cause hot_rumor to repeat
                     //  but this is acceptable, it will be removed when send
-                    std::lock_guard<std::mutex> g(hot_lock);
                     local_membership.addMember(node);
                     hot_rumor.push_back(node);
                 }
+                hot_lock.unlock();
                 // todo: send local_membership to new node
                 stub.replyPull(local_membership);
                 break;
@@ -54,9 +55,10 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
                 // todo: only add node to hot_rumor if node is not in local_membership
                 for (const NodeConfig &node: message.membership.members) {
                     if (local_membership.members.count(node) == 0) {
-                        std::lock_guard<std::mutex> g(hot_lock);
+                        hot_lock.lock();
                         local_membership.addMember(node);
                         hot_rumor.push_back(node);
+                        hot_lock.unlock();
                     }
                 }
                 break;
@@ -95,20 +97,19 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
             // todo: move rumor dice to top so it can be unlocked without locking the entire message sent process
             unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
             srand(seed);
-            {
-                std::lock_guard<std::mutex> g(hot_lock);
-                for (auto &i: hot_rumor) {
-                    hot_rumors.addMember(i);
-                }
-                for (int i = 0; i < hot_rumor.size(); i++) {
-                    if (rand() % DICE == 0) {
-                        //  std::cout << "DICE! Kicking ";
-                        //  hot_rumor[i].print();
-                        std::swap(hot_rumor[i], hot_rumor.back());
-                        hot_rumor.pop_back();
-                    }
+            hot_lock.lock();
+            for (auto &i: hot_rumor) {
+                hot_rumors.addMember(i);
+            }
+            for (int i = 0; i < hot_rumor.size(); i++) {
+                if (rand() % DICE == 0) {
+                    //  std::cout << "DICE! Kicking ";
+                    //  hot_rumor[i].print();
+                    std::swap(hot_rumor[i], hot_rumor.back());
+                    hot_rumor.pop_back();
                 }
             }
+            hot_lock.unlock();
             pushMessage.setPush(hot_rumors);
             // std::cout << "push message created:" << std::endl;
             // pushMessage.print();
