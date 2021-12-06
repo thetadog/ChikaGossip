@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <random>
+#include <algorithm>
 
 #include "ServerBody.h"
 #include "ServerStub.h"

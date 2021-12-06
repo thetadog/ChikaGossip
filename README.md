@@ -43,19 +43,25 @@ This project intends to setup a gossip protocol with rumor mongering. Since this
   - Ideally, the received connections should be kept alive by the threads in case of further rumors from the same senders until the senders disconnect but due to time constraint, this function is not implemented.
   - Currently, there's no membership deletion protocol and thus all nodes will forever keep their `local_membership` and try to make connections even if the members are dead. A timeout deletion (i.e. after y seconds, so that the hot rumor has cooled down, of not responding, the node presume the members dead and remove them from membership) was planned during the design phase but not implemented.
 
+## CMD
+If a server is not given an existing ip and port, it will assume it's the first node in the network and create a separate graph.
+`./server ip port [existing_ndoe_ip existing_node_port]`
+
+At start the network is small and there won't be any difference on replication between the nodes because the rumor will be spread to 2 random ndoes. But when the network gets bigger (i.e. # of nodes > 5), when anotehr new node joins the network, it's membership will suddenly appear in the connecting node but not necessarily all nodes in the network due to the random spreading process. However, after a few rounds of spreading, all nodes in the network should have the new node's membership data.
+
 ## Evaluation
 #### Eventual Consistency
 First start up 3 nodes. These 3 nodes should reach same replication state in 1 iteration as the size of randomness is set to 2.
-`./server ip port [existing_ndoe_ip existing_node_port]`
-`./server ip port [existing_ndoe_ip existing_node_port]`
-`./server ip port [existing_ndoe_ip existing_node_port]`
+`./server 10.200.125.60 2333`
+`./server 10.200.125.61 2333 10.200.125.60 2333`
+`./server 10.200.125.62 2333 10.200.125.60 2333`
 
-Then start up another 2 nodes, these 2 nodes will grab the complete network from the given node but other nodes in the network might have a delay reaching concensus.
-`./server ip port [existing_ndoe_ip existing_node_port]`
-`./server ip port [existing_ndoe_ip existing_node_port]`
+Then start up another 2 nodes. `63` should be able to grab the complete network but `64` might grab incomplete network. Other nodes in the network might also have a delay reaching concensus due to random messaging.
+`./server 10.200.125.63 2333 10.200.125.60 2333`
+`./server 10.200.125.64 2333 10.200.125.62 2333`
 
-Then start up another node, again this node should be able to immediate grab the entire network. But the rest of the nodes (that are not the given node) should have a higher probability of not getting this node with 1 iteration.
-`./server ip port [existing_ndoe_ip existing_node_port]`
+Then start up another node, again this node should be able to immediate grab some of the network from `62`. But the rest of the nodes (that are not the given node) should have a higher probability of not getting this node with 1 iteration.
+`./server 10.200.125.65 2333 10.200.125.64 2333`
 
 But in the end, all nodes should have `Membership` state like this:
 ``
@@ -76,9 +82,3 @@ Then restart this node but give a different existing node. This node should stil
 
 In the end, all nodes should have `Membership` state like this:
 ``
-
-## CMD
-If a server is not given an existing ip and port, it will assume it's the first node in the network and create a separate graph.
-`./server ip port [existing_ndoe_ip existing_node_port]`
-
-At start the network is small and there won't be any difference on replication between the nodes because the rumor will be spread to 2 random ndoes. But when the network gets bigger (i.e. # of nodes > 5), when anotehr new node joins the network, it's membership will suddenly appear in the connecting node but not necessarily all nodes in the network due to the random spreading process. However, after a few rounds of spreading, all nodes in the network should have the new node's membership data.
