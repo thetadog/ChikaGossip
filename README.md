@@ -52,16 +52,16 @@ At start the network is small and there won't be any difference on replication b
 ## Evaluation
 #### Eventual Consistency
 First start up 3 nodes. These 3 nodes should reach same replication state in 1 iteration as the size of randomness is set to 2.
-`./server 10.200.125.60 23333`
-`./server 10.200.125.61 23333 10.200.125.60 23333`
-`./server 10.200.125.62 23333 10.200.125.60 23333`
+`./server 10.200.125.60 11110`
+`./server 10.200.125.61 11111 10.200.125.60 11110`
+`./server 10.200.125.62 11112 10.200.125.60 11110`
 
 Then start up another 2 nodes. `63` should be able to grab the complete network but `64` might grab incomplete network. Other nodes in the network might also have a delay reaching concensus due to random messaging.
-`./server 10.200.125.63 23333 10.200.125.60 23333`
-`./server 10.200.125.64 23333 10.200.125.62 23333`
+`./server 10.200.125.63 11113 10.200.125.60 11110`
+`./server 10.200.125.64 11114 10.200.125.62 11112`
 
 Then start up another node, again this node should be able to immediate grab some of the network from `62`. But the rest of the nodes (that are not the given node) should have a higher probability of not getting this node with 1 iteration.
-`./server 10.200.125.65 23333 10.200.125.64 23333`
+`./server 10.200.125.65 11115 10.200.125.64 11114`
 
 But in the end, all nodes should have `Membership` state like this:
 ``

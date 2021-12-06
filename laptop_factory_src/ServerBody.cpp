@@ -89,7 +89,7 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
     while (true) {
         // send hot rumors to random nodes every 10s
 //        std::cout << "........................active thread sleeping........................" << std::endl;
-        std::this_thread::sleep_for(std::chrono::microseconds(10000000));
+        std::this_thread::sleep_for(std::chrono::microseconds(20000000));
         if (!hot_rumor.empty()) {
             Message pushMessage;
             pushMessage.setType(PUSH_MESSAGE);
