@@ -30,7 +30,7 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
         message = stub.receiveMessage();
 
         if (!message.isValid()) {
-            std::cout << "invalid message received" << std::endl;
+            // std::cout << "invalid message received" << std::endl;
             break;
         }
 
@@ -65,13 +65,8 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
                 break;
         }
 
-        std::cout << "post-processing local_membership" << std::endl;
+        std::cout << "........................Membership State........................" << std::endl;
         local_membership.print();
-
-        std::cout << "post-processing hot_rumor" << std::endl;
-        for (NodeConfig node: hot_rumor) {
-            node.print();
-        }
     }
 }
 
@@ -86,18 +81,14 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
         pullMessage.setPull(self);
 
         Membership received_membership = stub.pull(pullMessage);
-        int c = local_membership.merge(received_membership);
-        std::cout << "added " << c << " nodes to local" << std::endl;
+        local_membership.merge(received_membership);
         stub.close();
     }
 
-    // sleep for 1 min before sending push message
-    //    std::this_thread::sleep_for(std::chrono::microseconds(60000000));
-
     while (true) {
         // send hot rumors to random nodes every 10s
-        std::cout << "........................thread sleeping........................" << std::endl;
-        std::this_thread::sleep_for(std::chrono::microseconds(5000000));
+//        std::cout << "........................active thread sleeping........................" << std::endl;
+        std::this_thread::sleep_for(std::chrono::microseconds(10000000));
         if (!hot_rumor.empty()) {
             Message pushMessage;
             pushMessage.setType(PUSH_MESSAGE);
@@ -112,16 +103,16 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
                 }
                 for (int i = 0; i < hot_rumor.size(); i++) {
                     if (rand() % DICE == 0) {
-                        std::cout << "DICE! Kicking ";
-                        hot_rumor[i].print();
+                        //  std::cout << "DICE! Kicking ";
+                        //  hot_rumor[i].print();
                         std::swap(hot_rumor[i], hot_rumor.back());
                         hot_rumor.pop_back();
                     }
                 }
             }
             pushMessage.setPush(hot_rumors);
-            std::cout << "push message created:" << std::endl;
-            pushMessage.print();
+            // std::cout << "push message created:" << std::endl;
+            // pushMessage.print();
 
             // todo: this copy & paste to vector can be optimized
             std::vector<NodeConfig> shuffledNodes(local_membership.members.begin(),
@@ -136,10 +127,10 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
                     continue;
                 }
                 // todo: create connection with ith node
-                std::cout << "connecting with ";
-                shuffledNodes[index].print();
-                // if current node is unreachable, try next node
+                // std::cout << "connecting with ";
+                // shuffledNodes[index].print();
                 if (!stub.init(shuffledNodes[index])) {
+                    // if current node is unreachable, try next node
                     continue;
                 }
                 // todo: send message to ith node
@@ -147,10 +138,6 @@ void ServerNode::startPassiveThread(std::unique_ptr<ServerSocket> socket) {
                 stub.close();
             }
 
-            std::cout << "hot rumors left..." << std::endl;
-            for (NodeConfig node: hot_rumor) {
-                node.print();
-            }
         }
 
     }
