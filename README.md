@@ -104,7 +104,7 @@ But in the end, all nodes should have `Membership` state like this:
 `ip 10.200.125.64 port 11114`
 `ip 10.200.125.65 port 11115`
 
-#### Node Failure
+#### Node Failure 1
 This time, immediately starup 5 ndoes, wait for concensus.
 `./server 10.200.125.60 11110`
 `./server 10.200.125.61 11111 10.200.125.60 11110`
@@ -135,3 +135,22 @@ In the end, all nodes should have Membership state like this:
 `ip 10.200.125.63 port 11113`
 `ip 10.200.125.64 port 11114`
 `ip 10.200.125.65 port 11115`
+
+#### Node Failure 2
+This time, immediately starup 3 ndoes, wait for concensus.
+`./server 10.200.125.60 11110`
+`./server 10.200.125.61 11111 10.200.125.60 11110`
+`./server 10.200.125.62 11112 10.200.125.60 11110`
+
+Then create another node. 
+`./server 10.200.125.63 11113 10.200.125.60 11110`
+
+But before it sends out any rumors, shut the **existing node** `60` down.
+
+Do not restart `60`. Although `61 62` haven't received `63` info from `60`, `63` should be able to reach them directly from the membership sent by `60`.
+
+In the end, all still-alive nodes (`61 62 63`) should have Membership state like this:
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+`ip 10.200.125.63 port 11113`

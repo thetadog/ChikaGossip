@@ -61,7 +61,7 @@ int ServerSocket::Init(std::string ip, int port) {
 
     if ((connect(fd_, (struct sockaddr *) &addr, sizeof(addr))) < 0) {
         // todo: this line detect if a node has failed or not
-        perror("ERROR: failed to connect");
+//        perror("ERROR: failed to connect");
         return 0;
     }
     is_initialized_ = true;
