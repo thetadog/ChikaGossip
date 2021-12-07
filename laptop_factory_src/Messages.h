@@ -131,16 +131,4 @@ public:
     void print();
 };
 
-class PushMessage {
-private:
-    int TYPE = PUSH_MESSAGE;
-    Membership hot_rumors;
-public:
-    PushMessage() = default;
-
-    bool isValid() const;
-
-    void print();
-};
-
 #endif // #ifndef __MESSAGES_H__

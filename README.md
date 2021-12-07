@@ -50,35 +50,88 @@ If a server is not given an existing ip and port, it will assume it's the first 
 At start the network is small and there won't be any difference on replication between the nodes because the rumor will be spread to 2 random ndoes. But when the network gets bigger (i.e. # of nodes > 5), when anotehr new node joins the network, it's membership will suddenly appear in the connecting node but not necessarily all nodes in the network due to the random spreading process. However, after a few rounds of spreading, all nodes in the network should have the new node's membership data.
 
 ## Evaluation
+Due to crude implemenation, the Membership State is printed by the passive thread. Since passive thread deals with incoming message, a print only happens **after** the `local_membership` has been touched (i.e. requeseted by pull, inserted with new entry, or inserted and ignored with existing entry).
+
 #### Eventual Consistency
 First start up 3 nodes. These 3 nodes should reach same replication state in 1 iteration as the size of randomness is set to 2.
 `./server 10.200.125.60 11110`
 `./server 10.200.125.61 11111 10.200.125.60 11110`
 `./server 10.200.125.62 11112 10.200.125.60 11110`
 
-Then start up another 2 nodes. `63` should be able to grab the complete network but `64` might grab incomplete network. Other nodes in the network might also have a delay reaching concensus due to random messaging.
+Membership state should be:
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+
+Then start up another 2 nodes. both should be able to grab the complete network.
 `./server 10.200.125.63 11113 10.200.125.60 11110`
 `./server 10.200.125.64 11114 10.200.125.62 11112`
 
-Then start up another node, again this node should be able to immediate grab some of the network from `62`. But the rest of the nodes (that are not the given node) should have a higher probability of not getting this node with 1 iteration.
+Membership state for `60 63` should immediately be:
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+`ip 10.200.125.63 port 11113`
+
+Membership state for `62 64` should immediately be:
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+`ip 10.200.125.64 port 11114`
+
+**Internally**, Membership state for `61` should still be:
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+
+But the next print (since printing is done after receiving a message, which should be a push from other nodes), `61` should receive either `63` or `64` depends on who reaches first.
+
+Due to random gossips, the final membership state might take a few gossips to reach:
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+`ip 10.200.125.63 port 11113`
+`ip 10.200.125.64 port 11114`
+
+Then start up another node, again this node should be able to immediate grab some of the network from `62`. But the rest of the nodes (that are not the given node) should have a higher probability of not getting this node with only a few iterations.
 `./server 10.200.125.65 11115 10.200.125.64 11114`
 
 But in the end, all nodes should have `Membership` state like this:
-``
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+`ip 10.200.125.63 port 11113`
+`ip 10.200.125.64 port 11114`
+`ip 10.200.125.65 port 11115`
 
 #### Node Failure
 This time, immediately starup 5 ndoes, wait for concensus.
-`./server ip port [existing_ndoe_ip existing_node_port]`
-`./server ip port [existing_ndoe_ip existing_node_port]`
-`./server ip port [existing_ndoe_ip existing_node_port]`
-`./server ip port [existing_ndoe_ip existing_node_port]`
-`./server ip port [existing_ndoe_ip existing_node_port]`
+`./server 10.200.125.60 11110`
+`./server 10.200.125.61 11111 10.200.125.60 11110`
+`./server 10.200.125.62 11112 10.200.125.60 11110`
+`./server 10.200.125.63 11113 10.200.125.60 11110`
+`./server 10.200.125.64 11114 10.200.125.60 11110`
 
-Then create another node. But before it sends out any rumors, shut it down (the thread sleeps for a constant interval before sending gossips so there's time to interprupt). The rest of the network should still have this node in `local_membership` after a few iterations.
-`./server ip port [existing_ndoe_ip existing_node_port]`
+Then create another node. But before it sends out any rumors, shut it down (the thread sleeps for a constant interval before sending gossips so there's time to interprupt). `64` should immediately receive `65`. The rest of the network should still have this node in `local_membership` as well after a few iterations.
+`./server 10.200.125.65 11115 10.200.125.64 11114`
 
-Then restart this node but give a different existing node. This node should still be able to reach concensus with the rest of the network.
-`./server ip port [existing_ndoe_ip existing_node_port]`
+Membership state for `64` should immediately be:
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+`ip 10.200.125.63 port 11113`
+`ip 10.200.125.64 port 11114`
+`ip 10.200.125.65 port 11115`
 
-In the end, all nodes should have `Membership` state like this:
-``
+The rest of the nodes, however, remain without `65` for a while but eventually reaches `64` state as well.
+
+Then restart this node and give any existing node. This node should still be able to reach concensus with the rest of the network.
+`./server 10.200.125.65 11115 10.200.125.61 11111`
+
+In the end, all nodes should have Membership state like this:
+>`ip 10.200.125.60 port 11110`
+`ip 10.200.125.61 port 11111`
+`ip 10.200.125.62 port 11112`
+`ip 10.200.125.63 port 11113`
+`ip 10.200.125.64 port 11114`
+`ip 10.200.125.65 port 11115`
