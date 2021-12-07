@@ -19,14 +19,9 @@ SVR_HDRS := $(wildcard Server*.h)
 SVR_SRCS := $(wildcard Server*.cpp)
 SVR_OBJS := $(SVR_SRCS:.cpp=.o)
 
-# $(wildcard Client*.h) finds all file names with patterns ("Client" + random string + ".h")
-CLNT_HDRS := $(wildcard Client*.h)
-CLNT_SRCS := $(wildcard Client*.cpp)
-CLNT_OBJS := $(CLNT_SRCS:.cpp=.o)
-
 # $(filter-out X Y Z, A) removes X Y and Z from A if X Y Z are found in A
-CMN_HDRS := $(filter-out $(SVR_HDRS) $(CLNT_HDRS), $(HDRS))
-CMN_SRCS := $(filter-out $(SVR_SRCS) $(CLNT_SRCS), $(SRCS))
+CMN_HDRS := $(filter-out $(SVR_HDRS), $(HDRS))
+CMN_SRCS := $(filter-out $(SVR_SRCS), $(SRCS))
 CMN_OBJS := $(CMN_SRCS:.cpp=.o)
 
 
@@ -38,7 +33,7 @@ CFLAGS := -Wall -std=c++11
 LFLAGS := -pthread 
 
 # we are building two target binaries: server and client
-TARGET := server client
+TARGET := server
 
 #-------------------------------------------------------------------------------
 # 2. What to build and how to build them
